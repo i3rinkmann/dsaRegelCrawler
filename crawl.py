@@ -1,13 +1,12 @@
 import os
 import aiohttp
 import asyncio
+from tqdm.asyncio import trange, tqdm
 
 
 def main():
     links = load_links_from_file('Ressources/Bestiarium/Tiere/Tier-liste.txt')
     pages = asyncio.run(crawl_all_links(links))
-    print(pages)
-
 
 
 def load_links_from_file(ressource):
@@ -18,18 +17,22 @@ def load_links_from_file(ressource):
             links = file.read().splitlines()
     return links
 
-def crawl_link(url):
-    content = ''
-    return content
-
 
 async def crawl_all_links(links):
     pages = {}
     async with aiohttp.ClientSession() as session:
-        for link in links:
+        async for i in trange(len(links)):
+            link = links[i]
             async with session.get(link) as response:
-                pages[link] = await response.text()
+                pages[link] = await crawl_content_from_response(response.text())
     return pages
+
+async def crawl_content_from_response(response):
+    # get content
+    return response
+
+def write_content_to_table(content):
+    pass
 
 
 if __name__ == '__main__':
